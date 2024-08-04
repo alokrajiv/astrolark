@@ -1,7 +1,7 @@
 {
   "name": "astrolark",
-  "version": "0.1.3",
-  "description": "Generate a project overview respecting .gitignore",
+  "version": "0.1.4",
+  "description": "Generate context for an LLM to ask it questions on a project",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -19,7 +19,11 @@
     "overview",
     "generator"
   ],
-  "author": "alokrajiv",
+  "author": "Alok Rajiv <twitter-@alokrajiv> (https://alokrajiv.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alokrajiv/astrolark"
+  },
   "license": "MIT",
   "dependencies": {
     "@inquirer/prompts": "^5.3.6",
