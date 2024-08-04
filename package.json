@@ -1,0 +1,35 @@
+{
+  "name": "astrolark",
+  "version": "0.1.2",
+  "description": "Generate a project overview respecting .gitignore",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "astrolark": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "project",
+    "overview",
+    "generator"
+  ],
+  "author": "alokrajiv",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "clipboardy": "^4.0.0",
+    "ignore": "^5.3.1",
+    "js-yaml": "^4.1.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.1.0",
+    "@types/yargs": "^17.0.32",
+    "typescript": "^5.5.4"
+  }
+}
