@@ -2,6 +2,18 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { input, confirm, select } from '@inquirer/prompts';
 import chalk from 'chalk';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Get the directory name of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read the version from package.json
+const packageJsonPath = join(__dirname, '..', 'package.json');
+const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+const version = packageJson.version;
 
 export interface Options {
   copy: boolean;
@@ -9,6 +21,7 @@ export interface Options {
   format: 'xml' | 'yaml';
   verbose: boolean;
   wizard: boolean;
+  edit: boolean;
 }
 
 const defaultOptions: Options = {
@@ -16,11 +29,13 @@ const defaultOptions: Options = {
   output: undefined,
   format: 'yaml',
   verbose: false,
-  wizard: true
+  wizard: true,
+  edit: false
 };
 
 export async function getOptions(): Promise<Options> {
   const argv = await yargs(hideBin(process.argv))
+    .version(version)
     .option('wizard', {
       type: 'boolean',
       default: true,
@@ -46,9 +61,18 @@ export async function getOptions(): Promise<Options> {
       type: 'boolean',
       description: 'Enable verbose output',
     })
+    .option('edit', {
+      alias: 'x',
+      type: 'boolean',
+      description: 'Edit files based on Astrolark syntax in clipboard',
+    })
     .help()
     .alias('help', 'h')
     .parse();
+
+  if (argv.edit) {
+    return { ...defaultOptions, edit: true, wizard: false };
+  }
 
   if (argv.wizard === false) {
     return {
@@ -56,7 +80,8 @@ export async function getOptions(): Promise<Options> {
       output: argv.output,
       format: (argv.format as 'xml' | 'yaml') ?? defaultOptions.format,
       verbose: argv.verbose ?? defaultOptions.verbose,
-      wizard: false
+      wizard: false,
+      edit: false
     };
   }
 
@@ -100,7 +125,7 @@ async function promptForOptions(): Promise<Options> {
     default: defaultOptions.verbose
   });
 
-  return { copy, output, format, verbose, wizard: true };
+  return { copy, output, format, verbose, wizard: true, edit: false };
 }
 
 export function generateShortcutCommand(options: Options): string {

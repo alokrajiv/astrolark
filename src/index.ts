@@ -1,12 +1,20 @@
 #!/usr/bin/env node
+
 import chalk from 'chalk';
 import boxen from 'boxen';
 import clipboardy from 'clipboardy';
 import { getOptions, generateShortcutCommand } from './wizard.js';
 import { generateOverview } from './overviewGenerator.js';
+import { handleEditCommand } from './editCommand.js';
 
 async function main() {
   const options = await getOptions();
+
+  if (options.edit) {
+    await handleEditCommand();
+    return;
+  }
+
   const projectPath = process.cwd();
   const { content, ignoredFiles } = generateOverview(projectPath, options.format);
   
