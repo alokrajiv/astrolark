@@ -54,6 +54,43 @@ describe('Phase 2: Identify block types', () => {
     expect(result).toEqual(expected);
   });
 
+  it('should handle multiple no-change chunks between edit chunks', async () => {
+    const input: FileObject_p1[] = [
+      {
+        path: 'test.txt',
+        chunks: [
+          { type: 'edit', content: ['top'] },
+          { type: 'no-change' },
+          { type: 'no-change' },
+          { type: 'edit', content: ['middle'] },
+          { type: 'no-change' },
+          { type: 'no-change' },
+          { type: 'no-change' },
+          { type: 'edit', content: ['bottom'] }
+        ]
+      }
+    ];
+
+    const expected: FileObject_p2[] = [
+      {
+        path: 'test.txt',
+        chunks: [
+          { type: 'edit', content: ['top'], blockType: 'top' },
+          { type: 'no-change', blockType: 'no-change' },
+          { type: 'no-change', blockType: 'no-change' },
+          { type: 'edit', content: ['middle'], blockType: 'middle' },
+          { type: 'no-change', blockType: 'no-change' },
+          { type: 'no-change', blockType: 'no-change' },
+          { type: 'no-change', blockType: 'no-change' },
+          { type: 'edit', content: ['bottom'], blockType: 'bottom' }
+        ]
+      }
+    ];
+
+    const result = await phase2(input, context);
+    expect(result).toEqual(expected);
+  });
+
   it('should throw MisplacedBlockError for invalid block placement', async () => {
     const input: FileObject_p1[] = [
       {
