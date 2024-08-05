@@ -5,13 +5,12 @@ import boxen from 'boxen';
 import clipboardy from 'clipboardy';
 import { getOptions, generateShortcutCommand } from './wizard.js';
 import { generateOverview } from './overviewGenerator.js';
-import { handleEditCommand } from './editCommand.js';
 
 async function main() {
   const options = await getOptions();
 
   if (options.edit) {
-    await handleEditCommand();
+    // add the new edit command
     return;
   }
 
