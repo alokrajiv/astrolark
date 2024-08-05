@@ -1,6 +1,5 @@
 import { phase1 } from '../../../src/editor/processor/phase1';
 import { FileObject_p0, FileObject_p1, ProcessorContext } from '../../../src/editor/processor/types';
-import { Chunk } from '../../../src/editor/parser';
 
 describe('Phase 1: Remove meaningless patterns', () => {
   const context: ProcessorContext = { rootDir: '/test' };

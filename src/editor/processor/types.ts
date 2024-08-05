@@ -8,10 +8,15 @@ export interface FileObject_p1 extends Omit<FileObject, 'chunks'> {
   chunks: ProcessedChunk[];
 }
 
+// Phase 2 output
+export interface FileObject_p2 extends Omit<FileObject_p1, 'chunks'> {
+  chunks: ProcessedChunk2[];
+}
+
 export type ProcessedChunk = ProcessedEditChunk | ProcessedNoChangeChunk;
 
 export interface ProcessedEditChunk extends EditChunk {
-  blockType?: 'full' | 'top' | 'middle' | 'bottom';
+  blockType?: 'full' | 'top' | 'middle' | 'bottom' | 'misplaced';
   topAnchor?: string;
   bottomAnchor?: string;
 }
@@ -19,6 +24,8 @@ export interface ProcessedEditChunk extends EditChunk {
 export interface ProcessedNoChangeChunk extends NoChangeChunk {
   blockType?: 'no-change';
 }
+
+export type ProcessedChunk2 = ProcessedEditChunk | ProcessedNoChangeChunk;
 
 export interface ProcessorContext {
   rootDir: string;
@@ -29,10 +36,14 @@ export type ProcessorPhase1 = (
   context: ProcessorContext
 ) => Promise<FileObject_p1[]>;
 
-// You can add more phases as needed, for example:
-// export type ProcessorPhase2 = (
-//   fileObjects: FileObject_p1[],
-//   context: ProcessorContext
-// ) => Promise<FileObject_p2[]>;
+export type ProcessorPhase2 = (
+  fileObjects: FileObject_p1[],
+  context: ProcessorContext
+) => Promise<FileObject_p2[]>;
 
-// ... and so on for subsequent phases
+export class MisplacedBlockError extends Error {
+  constructor(public filePath: string, public chunkIndex: number) {
+    super(`Misplaced block found in file ${filePath} at chunk index ${chunkIndex}`);
+    this.name = 'MisplacedBlockError';
+  }
+}
