@@ -1,7 +1,7 @@
 import { phase1 } from '../../../src/editor/processor/phase1';
 import { FileObject_p0, FileObject_p1, ProcessorContext } from '../../../src/editor/processor/types';
 
-describe('Phase 1: Remove meaningless patterns', () => {
+describe('Phase 1: Remove consecutive no-change chunks', () => {
   const context: ProcessorContext = { rootDir: '/test' };
 
   it('should remove consecutive no-change chunks', async () => {
@@ -35,16 +35,14 @@ describe('Phase 1: Remove meaningless patterns', () => {
     expect(result).toEqual(expected);
   });
 
-  it('should remove whitespace-only edit chunks between no-change and file start/end', async () => {
+  it('should preserve whitespace and empty lines in edit chunks', async () => {
     const input: FileObject_p0[] = [
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['', '  ', ''], blockId: 'block1' },
+          { type: 'edit', content: ['  line1', '', '    line3'], blockId: 'block1' },
           { type: 'no-change', blockId: 'block2' },
-          { type: 'edit', content: ['line1', 'line2'], blockId: 'block3' },
-          { type: 'no-change', blockId: 'block4' },
-          { type: 'edit', content: ['', '  ', ''], blockId: 'block5' },
+          { type: 'edit', content: ['line4', '  ', 'line6'], blockId: 'block3' },
         ]
       }
     ];
@@ -53,36 +51,9 @@ describe('Phase 1: Remove meaningless patterns', () => {
       {
         path: 'test.txt',
         chunks: [
+          { type: 'edit', content: ['  line1', '', '    line3'], blockId: 'block1' },
           { type: 'no-change', blockId: 'block2' },
-          { type: 'edit', content: ['line1', 'line2'], blockId: 'block3' },
-          { type: 'no-change', blockId: 'block4' },
-        ]
-      }
-    ];
-
-    const result = await phase1(input, context);
-    expect(result).toEqual(expected);
-  });
-
-  it('should trim whitespace from edit chunks adjacent to no-change chunks', async () => {
-    const input: FileObject_p0[] = [
-      {
-        path: 'test.txt',
-        chunks: [
-          { type: 'edit', content: ['  line1', 'line2  '], blockId: 'block1' },
-          { type: 'no-change', blockId: 'block2' },
-          { type: 'edit', content: ['  line3', 'line4  '], blockId: 'block3' },
-        ]
-      }
-    ];
-
-    const expected: FileObject_p1[] = [
-      {
-        path: 'test.txt',
-        chunks: [
-          { type: 'edit', content: ['  line1', 'line2'], blockId: 'block1' },
-          { type: 'no-change', blockId: 'block2' },
-          { type: 'edit', content: ['line3', 'line4  '], blockId: 'block3' },
+          { type: 'edit', content: ['line4', '  ', 'line6'], blockId: 'block3' },
         ]
       }
     ];
@@ -97,13 +68,13 @@ describe('Phase 1: Remove meaningless patterns', () => {
     expect(result).toEqual([]);
   });
 
-  it('should preserve blockId for no-change chunks', async () => {
+  it('should handle file with only no-change chunks', async () => {
     const input: FileObject_p0[] = [
       {
         path: 'test.txt',
         chunks: [
           { type: 'no-change', blockId: 'block1' },
-          { type: 'edit', content: ['line1'], blockId: 'block2' },
+          { type: 'no-change', blockId: 'block2' },
           { type: 'no-change', blockId: 'block3' },
         ]
       }
@@ -114,8 +85,6 @@ describe('Phase 1: Remove meaningless patterns', () => {
         path: 'test.txt',
         chunks: [
           { type: 'no-change', blockId: 'block1' },
-          { type: 'edit', content: ['line1'], blockId: 'block2' },
-          { type: 'no-change', blockId: 'block3' },
         ]
       }
     ];

@@ -1,0 +1,112 @@
+{
+  "result": [
+    {
+      "path": "original.c",
+      "chunks": [
+        {
+          "type": "edit",
+          "content": [
+            "#include <stdio.h>",
+            "#include <stdlib.h>",
+            "#include <string.h>",
+            "#include <assert.h>",
+            "",
+            "#define BUF_SIZE 64 * 1024"
+          ],
+          "blockId": "block1",
+          "blockType": "top",
+          "topAnchor": "@@ALK_block1_ANCHOR_TOP",
+          "bottomAnchor": "@@ALK_block1_ANCHOR_BOTTOM"
+        },
+        {
+          "type": "no-change",
+          "blockId": "block2",
+          "blockType": "no-change"
+        },
+        {
+          "type": "edit",
+          "content": [
+            "void process_heartbeat_message(HeartbeatMessage *hb, Buffer *recv_buf, Buffer *send_buf) {",
+            "    unsigned char *p = hb->payload;",
+            "    unsigned short payload_length = hb->length;",
+            "",
+            "    // Check if the payload length exceeds the buffer size",
+            "    assert(payload_length <= recv_buf->length - 5);",
+            "",
+            "    // Copy payload data to send buffer",
+            "    memcpy(send_buf->data, p, payload_length);",
+            "",
+            "    // Send response",
+            "    send_heartbeat_response(send_buf);",
+            "}"
+          ],
+          "blockId": "block3",
+          "blockType": "middle",
+          "topAnchor": "@@ALK_block3_ANCHOR_TOP",
+          "bottomAnchor": "@@ALK_block3_ANCHOR_BOTTOM"
+        },
+        {
+          "type": "no-change",
+          "blockId": "block4",
+          "blockType": "no-change"
+        },
+        {
+          "type": "edit",
+          "content": [
+            "HeartbeatMessage *parse_heartbeat_message(Buffer *recv_buf) {",
+            "    HeartbeatMessage *hb = malloc(sizeof(HeartbeatMessage));",
+            "    if (!hb) {",
+            "        fprintf(stderr, \"Memory allocation failed\\n\");",
+            "        return NULL;",
+            "    }",
+            "",
+            "    // Parse heartbeat message",
+            "    hb->type = recv_buf->data[0];",
+            "    hb->payload = (unsigned int)((recv_buf->data[1] << 8) | recv_buf->data[2]);",
+            "    hb->length = (unsigned short)((recv_buf->data[3] << 8) | recv_buf->data[4]);",
+            "    hb->payload = recv_buf->data + 5;",
+            "",
+            "    // Validate payload length",
+            "    if (hb->length > recv_buf->length - 5) {",
+            "        fprintf(stderr, \"Invalid payload length\\n\");",
+            "        free(hb);",
+            "        return NULL;",
+            "    }",
+            "",
+            "    return hb;",
+            "}"
+          ],
+          "blockId": "block5",
+          "blockType": "middle",
+          "topAnchor": "@@ALK_block5_ANCHOR_TOP",
+          "bottomAnchor": "@@ALK_block5_ANCHOR_BOTTOM"
+        },
+        {
+          "type": "no-change",
+          "blockId": "block6",
+          "blockType": "no-change"
+        },
+        {
+          "type": "edit",
+          "content": [
+            "    if (hb_msg) {",
+            "        process_heartbeat_message(hb_msg, &recv_buf, &send_buf);",
+            "        free(hb_msg);",
+            "    }",
+            "",
+            "    free(recv_buf.data);",
+            "    free(send_buf.data);",
+            "",
+            "    printf(\"Heartbeat processing completed successfully.\\n\");",
+            "    return 0;",
+            "}"
+          ],
+          "blockId": "block7",
+          "blockType": "bottom",
+          "topAnchor": "@@ALK_block7_ANCHOR_TOP",
+          "bottomAnchor": "@@ALK_block7_ANCHOR_BOTTOM"
+        }
+      ]
+    }
+  ]
+}

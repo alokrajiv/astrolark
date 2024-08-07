@@ -9,9 +9,14 @@ export const phase2: ProcessorPhase2 = async (fileObjects, context) => {
 
 function identifyBlockTypes(fileObject: FileObject_p1): ProcessedChunk2[] {
   const { chunks, path } = fileObject;
-  
+
   if (chunks.length === 1 && chunks[0].type === 'edit') {
-    return [{ ...chunks[0], blockType: 'full' }];
+    return [{
+      ...chunks[0],
+      blockType: 'full',
+      topAnchor: `@@ALK_${chunks[0].blockId}_ANCHOR_TOP`,
+      bottomAnchor: `@@ALK_${chunks[0].blockId}_ANCHOR_BOTTOM`
+    }];
   }
 
   return chunks.map((chunk, index) => {
@@ -20,17 +25,23 @@ function identifyBlockTypes(fileObject: FileObject_p1): ProcessedChunk2[] {
     }
 
     if (chunk.type === 'edit') {
+      let blockType: 'top' | 'middle' | 'bottom';
       if (index === 0) {
-        return { ...chunk, blockType: 'top' };
-      }
-      if (index === chunks.length - 1) {
-        return { ...chunk, blockType: 'bottom' };
-      }
-      if (chunks[index - 1].type === 'no-change' && chunks[index + 1].type === 'no-change') {
-        return { ...chunk, blockType: 'middle' };
+        blockType = 'top';
+      } else if (index === chunks.length - 1) {
+        blockType = 'bottom';
+      } else if (chunks[index - 1].type === 'no-change' && chunks[index + 1].type === 'no-change') {
+        blockType = 'middle';
+      } else {
+        throw new MisplacedBlockError(path, index);
       }
 
-      throw new MisplacedBlockError(path, index);
+      return {
+        ...chunk,
+        blockType,
+        topAnchor: `@@ALK_${chunk.blockId}_ANCHOR_TOP`,
+        bottomAnchor: `@@ALK_${chunk.blockId}_ANCHOR_BOTTOM`
+      };
     }
 
     throw new Error(`Unknown chunk type at index ${index}`);
