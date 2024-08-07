@@ -4,7 +4,7 @@ import { FileObject_p1, FileObject_p2, ProcessorContext, MisplacedBlockError } f
 describe('Phase 2: Identify block types', () => {
   const context: ProcessorContext = { rootDir: '/test' };
 
-  it('should identify full block', async () => {
+  it('should identify full block with anchors', async () => {
     const input: FileObject_p1[] = [
       {
         path: 'test.txt',
@@ -15,7 +15,14 @@ describe('Phase 2: Identify block types', () => {
     const expected: FileObject_p2[] = [
       {
         path: 'test.txt',
-        chunks: [{ type: 'edit', content: ['line1', 'line2'], blockId: 'block1', blockType: 'full' }]
+        chunks: [{
+          type: 'edit',
+          content: ['line1', 'line2'],
+          blockId: 'block1',
+          blockType: 'full',
+          topAnchor: '@@ALK_block1_ANCHOR_TOP',
+          bottomAnchor: '@@ALK_block1_ANCHOR_BOTTOM'
+        }]
       }
     ];
 
@@ -23,7 +30,7 @@ describe('Phase 2: Identify block types', () => {
     expect(result).toEqual(expected);
   });
 
-  it('should identify top, middle, and bottom blocks', async () => {
+  it('should identify top, middle, and bottom blocks with anchors', async () => {
     const input: FileObject_p1[] = [
       {
         path: 'test.txt',
@@ -41,11 +48,32 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['top'], blockId: 'block1', blockType: 'top' },
+          {
+            type: 'edit',
+            content: ['top'],
+            blockId: 'block1',
+            blockType: 'top',
+            topAnchor: '@@ALK_block1_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block1_ANCHOR_BOTTOM'
+          },
           { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
-          { type: 'edit', content: ['middle'], blockId: 'block3', blockType: 'middle' },
+          {
+            type: 'edit',
+            content: ['middle'],
+            blockId: 'block3',
+            blockType: 'middle',
+            topAnchor: '@@ALK_block3_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block3_ANCHOR_BOTTOM'
+          },
           { type: 'no-change', blockId: 'block4', blockType: 'no-change' },
-          { type: 'edit', content: ['bottom'], blockId: 'block5', blockType: 'bottom' }
+          {
+            type: 'edit',
+            content: ['bottom'],
+            blockId: 'block5',
+            blockType: 'bottom',
+            topAnchor: '@@ALK_block5_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block5_ANCHOR_BOTTOM'
+          }
         ]
       }
     ];
@@ -70,9 +98,23 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['top'], blockId: 'block1', blockType: 'top' },
+          {
+            type: 'edit',
+            content: ['top'],
+            blockId: 'block1',
+            blockType: 'top',
+            topAnchor: '@@ALK_block1_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block1_ANCHOR_BOTTOM'
+          },
           { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
-          { type: 'edit', content: ['bottom'], blockId: 'block3', blockType: 'bottom' }
+          {
+            type: 'edit',
+            content: ['bottom'],
+            blockId: 'block3',
+            blockType: 'bottom',
+            topAnchor: '@@ALK_block3_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block3_ANCHOR_BOTTOM'
+          }
         ]
       }
     ];
@@ -126,33 +168,6 @@ describe('Phase 2: Identify block types', () => {
     expect(result).toEqual(expected);
   });
 
-  it('should handle file with trimmed whitespace', async () => {
-    const input: FileObject_p1[] = [
-      {
-        path: 'test.txt',
-        chunks: [
-          { type: 'edit', content: ['content'], blockId: 'block1' },
-          { type: 'no-change', blockId: 'block2' },
-          { type: 'edit', content: ['more content'], blockId: 'block3' }
-        ]
-      }
-    ];
-
-    const expected: FileObject_p2[] = [
-      {
-        path: 'test.txt',
-        chunks: [
-          { type: 'edit', content: ['content'], blockId: 'block1', blockType: 'top' },
-          { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
-          { type: 'edit', content: ['more content'], blockId: 'block3', blockType: 'bottom' }
-        ]
-      }
-    ];
-
-    const result = await phase2(input, context);
-    expect(result).toEqual(expected);
-  });
-
   it('should handle multiple files', async () => {
     const input: FileObject_p1[] = [
       {
@@ -175,15 +190,36 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'file1.txt',
         chunks: [
-          { type: 'edit', content: ['file1 content'], blockId: 'block1', blockType: 'full' }
+          {
+            type: 'edit',
+            content: ['file1 content'],
+            blockId: 'block1',
+            blockType: 'full',
+            topAnchor: '@@ALK_block1_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block1_ANCHOR_BOTTOM'
+          }
         ]
       },
       {
         path: 'file2.txt',
         chunks: [
-          { type: 'edit', content: ['file2 top'], blockId: 'block1', blockType: 'top' },
+          {
+            type: 'edit',
+            content: ['file2 top'],
+            blockId: 'block1',
+            blockType: 'top',
+            topAnchor: '@@ALK_block1_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block1_ANCHOR_BOTTOM'
+          },
           { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
-          { type: 'edit', content: ['file2 bottom'], blockId: 'block3', blockType: 'bottom' }
+          {
+            type: 'edit',
+            content: ['file2 bottom'],
+            blockId: 'block3',
+            blockType: 'bottom',
+            topAnchor: '@@ALK_block3_ANCHOR_TOP',
+            bottomAnchor: '@@ALK_block3_ANCHOR_BOTTOM'
+          }
         ]
       }
     ];
