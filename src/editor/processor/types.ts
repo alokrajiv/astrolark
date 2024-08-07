@@ -1,7 +1,9 @@
 import { FileObject, Chunk, EditChunk, NoChangeChunk } from '../parser';
 
 // Parser output (Phase 0)
-export type FileObject_p0 = FileObject;
+export interface FileObject_p0 extends Omit<FileObject, 'chunks'> {
+  chunks: (Chunk & { blockId: string })[];
+}
 
 // Phase 1 output
 export interface FileObject_p1 extends Omit<FileObject, 'chunks'> {
@@ -16,12 +18,14 @@ export interface FileObject_p2 extends Omit<FileObject_p1, 'chunks'> {
 export type ProcessedChunk = ProcessedEditChunk | ProcessedNoChangeChunk;
 
 export interface ProcessedEditChunk extends EditChunk {
+  blockId: string;
   blockType?: 'full' | 'top' | 'middle' | 'bottom' | 'misplaced';
   topAnchor?: string;
   bottomAnchor?: string;
 }
 
 export interface ProcessedNoChangeChunk extends NoChangeChunk {
+  blockId: string;
   blockType?: 'no-change';
 }
 

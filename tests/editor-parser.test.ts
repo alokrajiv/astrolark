@@ -13,8 +13,7 @@ import {
   sampleInputMissingPath,
   sampleInputUnclosedFile,
   sampleInputNestedFile,
-  simulateLLMStreamFromString,
-  createReadableStream
+  simulateLLMStreamFromString
 } from './setup';
 
 const transformerFn = simulateLLMStreamFromString;
@@ -29,9 +28,11 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['newline1', 'newline2'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
         ],
       },
@@ -46,13 +47,16 @@ describe('parseAstrolarkInput', () => {
         chunks: [
           {
             type: 'no-change',
+            blockId: 'block1'
           },
           {
             type: 'edit',
             content: ['newline3', 'newline4'],
+            blockId: 'block2'
           },
           {
             type: 'no-change',
+            blockId: 'block3'
           },
         ],
       },
@@ -67,10 +71,12 @@ describe('parseAstrolarkInput', () => {
         chunks: [
           {
             type: 'no-change',
+            blockId: 'block1'
           },
           {
             type: 'edit',
             content: ['newline5', 'newline6'],
+            blockId: 'block2'
           },
         ],
       },
@@ -86,20 +92,25 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['newline1'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
           {
             type: 'edit',
             content: ['newline3'],
+            blockId: 'block3'
           },
           {
             type: 'no-change',
+            blockId: 'block4'
           },
           {
             type: 'edit',
             content: ['newline5'],
+            blockId: 'block5'
           },
         ],
       },
@@ -115,9 +126,11 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['newline1', 'newline2'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
         ],
       },
@@ -127,13 +140,16 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['content1'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
           {
             type: 'edit',
             content: ['content3'],
+            blockId: 'block3'
           },
         ],
       },
@@ -149,20 +165,25 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['newline1', 'newline2'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
           {
             type: 'edit',
             content: ['newline4'],
+            blockId: 'block3'
           },
           {
             type: 'no-change',
+            blockId: 'block4'
           },
           {
             type: 'edit',
             content: ['newline6'],
+            blockId: 'block5'
           },
         ],
       },
@@ -172,13 +193,16 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['content1'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
           {
             type: 'edit',
             content: ['content3'],
+            blockId: 'block3'
           },
         ],
       },
@@ -187,10 +211,12 @@ describe('parseAstrolarkInput', () => {
         chunks: [
           {
             type: 'no-change',
+            blockId: 'block1'
           },
           {
             type: 'edit',
             content: ['updatedline4', 'newline5'],
+            blockId: 'block2'
           },
         ],
       },
@@ -206,13 +232,16 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['line1', '', 'line3'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
           {
             type: 'edit',
             content: [''],
+            blockId: 'block3'
           },
         ],
       },
@@ -228,16 +257,20 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['line1'],
+            blockId: 'block1'
           },
           {
             type: 'no-change',
+            blockId: 'block2'
           },
           {
             type: 'no-change',
+            blockId: 'block3'
           },
           {
             type: 'edit',
             content: ['line2'],
+            blockId: 'block4'
           },
         ],
       },
@@ -252,6 +285,7 @@ describe('parseAstrolarkInput', () => {
         chunks: [
           {
             type: 'no-change',
+            blockId: 'block1'
           },
         ],
       },
@@ -267,6 +301,7 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['line1', 'line2'],
+            blockId: 'block1'
           },
         ],
       },
@@ -282,6 +317,7 @@ describe('parseAstrolarkInput', () => {
           {
             type: 'edit',
             content: ['line1', 'line2'],
+            blockId: 'block1'
           },
         ],
       },
@@ -312,5 +348,4 @@ describe('parseAstrolarkInput', () => {
     await expect(parseAstrolarkInput(transformerFn(sampleInputNestedFile)))
       .rejects.toThrow(NestedFileSectionError);
   });
-
 });

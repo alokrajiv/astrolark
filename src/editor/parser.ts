@@ -6,10 +6,12 @@ export type FilePath = string;
 export interface EditChunk {
   type: 'edit';
   content: string[];
+  blockId: string;
 }
 
 export interface NoChangeChunk {
   type: 'no-change';
+  blockId: string;
 }
 
 export type Chunk = EditChunk | NoChangeChunk;
@@ -18,6 +20,7 @@ export interface FileObject {
   path: FilePath;
   chunks: Chunk[];
 }
+
 
 export class MissingPathError extends Error {
   constructor() {
@@ -51,6 +54,7 @@ export async function parseAstrolarkInput(readStream: Readable): Promise<FileObj
   const fileObjects: FileObject[] = [];
   let currentFileObject: FileObject | null = null;
   let currentChunk: EditChunk | null = null;
+  let blockCounter = 0;
 
   const rl = readline.createInterface({
     input: readStream,
@@ -67,6 +71,7 @@ export async function parseAstrolarkInput(readStream: Readable): Promise<FileObj
         throw new MissingPathError();
       }
       currentFileObject = { path: pathMatch[1], chunks: [] };
+      blockCounter = 0;
     } else if (line.trim() === '@@ALK</FILE>') {
       if (currentFileObject === null) {
         throw new UnexpectedFileEndError();
@@ -82,11 +87,11 @@ export async function parseAstrolarkInput(readStream: Readable): Promise<FileObj
         if (currentChunk !== null) {
           currentFileObject.chunks.push(currentChunk);
         }
-        currentFileObject.chunks.push({ type: 'no-change' });
+        currentFileObject.chunks.push({ type: 'no-change', blockId: `block${++blockCounter}` });
         currentChunk = null;
       } else {
         if (currentChunk === null) {
-          currentChunk = { type: 'edit', content: [] };
+          currentChunk = { type: 'edit', content: [], blockId: `block${++blockCounter}` };
         }
         currentChunk.content.push(line);
       }
