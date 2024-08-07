@@ -9,12 +9,12 @@ describe('Phase 1: Remove meaningless patterns', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'no-change' },
-          { type: 'no-change' },
-          { type: 'edit', content: ['line1'] },
-          { type: 'no-change' },
-          { type: 'no-change' },
-          { type: 'edit', content: ['line2'] },
+          { type: 'no-change', blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['line1'], blockId: 'block3' },
+          { type: 'no-change', blockId: 'block4' },
+          { type: 'no-change', blockId: 'block5' },
+          { type: 'edit', content: ['line2'], blockId: 'block6' },
         ]
       }
     ];
@@ -23,10 +23,10 @@ describe('Phase 1: Remove meaningless patterns', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'no-change' },
-          { type: 'edit', content: ['line1'] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['line2'] },
+          { type: 'no-change', blockId: 'block1' },
+          { type: 'edit', content: ['line1'], blockId: 'block3' },
+          { type: 'no-change', blockId: 'block4' },
+          { type: 'edit', content: ['line2'], blockId: 'block6' },
         ]
       }
     ];
@@ -40,11 +40,11 @@ describe('Phase 1: Remove meaningless patterns', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['', '  ', ''] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['line1', 'line2'] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['', '  ', ''] },
+          { type: 'edit', content: ['', '  ', ''], blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['line1', 'line2'], blockId: 'block3' },
+          { type: 'no-change', blockId: 'block4' },
+          { type: 'edit', content: ['', '  ', ''], blockId: 'block5' },
         ]
       }
     ];
@@ -53,9 +53,9 @@ describe('Phase 1: Remove meaningless patterns', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'no-change' },
-          { type: 'edit', content: ['line1', 'line2'] },
-          { type: 'no-change' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['line1', 'line2'], blockId: 'block3' },
+          { type: 'no-change', blockId: 'block4' },
         ]
       }
     ];
@@ -69,9 +69,9 @@ describe('Phase 1: Remove meaningless patterns', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['  line1', 'line2  '] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['  line3', 'line4  '] },
+          { type: 'edit', content: ['  line1', 'line2  '], blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['  line3', 'line4  '], blockId: 'block3' },
         ]
       }
     ];
@@ -80,9 +80,9 @@ describe('Phase 1: Remove meaningless patterns', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['  line1', 'line2'] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['line3', 'line4  '] },
+          { type: 'edit', content: ['  line1', 'line2'], blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['line3', 'line4  '], blockId: 'block3' },
         ]
       }
     ];
@@ -95,5 +95,32 @@ describe('Phase 1: Remove meaningless patterns', () => {
     const input: FileObject_p0[] = [];
     const result = await phase1(input, context);
     expect(result).toEqual([]);
+  });
+
+  it('should preserve blockId for no-change chunks', async () => {
+    const input: FileObject_p0[] = [
+      {
+        path: 'test.txt',
+        chunks: [
+          { type: 'no-change', blockId: 'block1' },
+          { type: 'edit', content: ['line1'], blockId: 'block2' },
+          { type: 'no-change', blockId: 'block3' },
+        ]
+      }
+    ];
+
+    const expected: FileObject_p1[] = [
+      {
+        path: 'test.txt',
+        chunks: [
+          { type: 'no-change', blockId: 'block1' },
+          { type: 'edit', content: ['line1'], blockId: 'block2' },
+          { type: 'no-change', blockId: 'block3' },
+        ]
+      }
+    ];
+
+    const result = await phase1(input, context);
+    expect(result).toEqual(expected);
   });
 });
