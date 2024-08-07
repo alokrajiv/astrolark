@@ -1,4 +1,4 @@
-import { parseAstrolarkInput, MissingPathError, UnclosedFileSectionError, NestedFileSectionError } from '../src/editor/parser';
+import { parseAstrolarkInput, MissingPathError, UnclosedFileSectionError, NestedFileSectionError } from '../../src/editor/parser';
 import {
   sampleInputBeginning,
   sampleInputMiddle,
@@ -14,7 +14,7 @@ import {
   sampleInputUnclosedFile,
   sampleInputNestedFile,
   simulateLLMStreamFromString
-} from './setup';
+} from '../setup';
 
 const transformerFn = simulateLLMStreamFromString;
 

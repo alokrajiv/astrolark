@@ -8,14 +8,14 @@ describe('Phase 2: Identify block types', () => {
     const input: FileObject_p1[] = [
       {
         path: 'test.txt',
-        chunks: [{ type: 'edit', content: ['line1', 'line2'] }]
+        chunks: [{ type: 'edit', content: ['line1', 'line2'], blockId: 'block1' }]
       }
     ];
 
     const expected: FileObject_p2[] = [
       {
         path: 'test.txt',
-        chunks: [{ type: 'edit', content: ['line1', 'line2'], blockType: 'full' }]
+        chunks: [{ type: 'edit', content: ['line1', 'line2'], blockId: 'block1', blockType: 'full' }]
       }
     ];
 
@@ -28,11 +28,11 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['top'] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['middle'] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['bottom'] }
+          { type: 'edit', content: ['top'], blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['middle'], blockId: 'block3' },
+          { type: 'no-change', blockId: 'block4' },
+          { type: 'edit', content: ['bottom'], blockId: 'block5' }
         ]
       }
     ];
@@ -41,11 +41,11 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['top'], blockType: 'top' },
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'edit', content: ['middle'], blockType: 'middle' },
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'edit', content: ['bottom'], blockType: 'bottom' }
+          { type: 'edit', content: ['top'], blockId: 'block1', blockType: 'top' },
+          { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
+          { type: 'edit', content: ['middle'], blockId: 'block3', blockType: 'middle' },
+          { type: 'no-change', blockId: 'block4', blockType: 'no-change' },
+          { type: 'edit', content: ['bottom'], blockId: 'block5', blockType: 'bottom' }
         ]
       }
     ];
@@ -54,19 +54,14 @@ describe('Phase 2: Identify block types', () => {
     expect(result).toEqual(expected);
   });
 
-  it('should handle multiple no-change chunks between edit chunks', async () => {
+  it('should handle single no-change chunk between edit chunks', async () => {
     const input: FileObject_p1[] = [
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['top'] },
-          { type: 'no-change' },
-          { type: 'no-change' },
-          { type: 'edit', content: ['middle'] },
-          { type: 'no-change' },
-          { type: 'no-change' },
-          { type: 'no-change' },
-          { type: 'edit', content: ['bottom'] }
+          { type: 'edit', content: ['top'], blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['bottom'], blockId: 'block3' }
         ]
       }
     ];
@@ -75,14 +70,9 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['top'], blockType: 'top' },
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'edit', content: ['middle'], blockType: 'middle' },
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'edit', content: ['bottom'], blockType: 'bottom' }
+          { type: 'edit', content: ['top'], blockId: 'block1', blockType: 'top' },
+          { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
+          { type: 'edit', content: ['bottom'], blockId: 'block3', blockType: 'bottom' }
         ]
       }
     ];
@@ -96,10 +86,10 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'edit', content: ['top'] },
-          { type: 'edit', content: ['invalid'] },
-          { type: 'no-change' },
-          { type: 'edit', content: ['bottom'] }
+          { type: 'edit', content: ['top'], blockId: 'block1' },
+          { type: 'edit', content: ['invalid'], blockId: 'block2' },
+          { type: 'no-change', blockId: 'block3' },
+          { type: 'edit', content: ['bottom'], blockId: 'block4' }
         ]
       }
     ];
@@ -118,8 +108,7 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'no-change' },
-          { type: 'no-change' }
+          { type: 'no-change', blockId: 'block1' }
         ]
       }
     ];
@@ -128,8 +117,73 @@ describe('Phase 2: Identify block types', () => {
       {
         path: 'test.txt',
         chunks: [
-          { type: 'no-change', blockType: 'no-change' },
-          { type: 'no-change', blockType: 'no-change' }
+          { type: 'no-change', blockId: 'block1', blockType: 'no-change' }
+        ]
+      }
+    ];
+
+    const result = await phase2(input, context);
+    expect(result).toEqual(expected);
+  });
+
+  it('should handle file with trimmed whitespace', async () => {
+    const input: FileObject_p1[] = [
+      {
+        path: 'test.txt',
+        chunks: [
+          { type: 'edit', content: ['content'], blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['more content'], blockId: 'block3' }
+        ]
+      }
+    ];
+
+    const expected: FileObject_p2[] = [
+      {
+        path: 'test.txt',
+        chunks: [
+          { type: 'edit', content: ['content'], blockId: 'block1', blockType: 'top' },
+          { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
+          { type: 'edit', content: ['more content'], blockId: 'block3', blockType: 'bottom' }
+        ]
+      }
+    ];
+
+    const result = await phase2(input, context);
+    expect(result).toEqual(expected);
+  });
+
+  it('should handle multiple files', async () => {
+    const input: FileObject_p1[] = [
+      {
+        path: 'file1.txt',
+        chunks: [
+          { type: 'edit', content: ['file1 content'], blockId: 'block1' }
+        ]
+      },
+      {
+        path: 'file2.txt',
+        chunks: [
+          { type: 'edit', content: ['file2 top'], blockId: 'block1' },
+          { type: 'no-change', blockId: 'block2' },
+          { type: 'edit', content: ['file2 bottom'], blockId: 'block3' }
+        ]
+      }
+    ];
+
+    const expected: FileObject_p2[] = [
+      {
+        path: 'file1.txt',
+        chunks: [
+          { type: 'edit', content: ['file1 content'], blockId: 'block1', blockType: 'full' }
+        ]
+      },
+      {
+        path: 'file2.txt',
+        chunks: [
+          { type: 'edit', content: ['file2 top'], blockId: 'block1', blockType: 'top' },
+          { type: 'no-change', blockId: 'block2', blockType: 'no-change' },
+          { type: 'edit', content: ['file2 bottom'], blockId: 'block3', blockType: 'bottom' }
         ]
       }
     ];
