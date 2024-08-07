@@ -2,9 +2,15 @@ import { FileObject_p2, ProcessorContext, ProcessedChunk2 } from './types';
 import fs from 'fs/promises';
 import path from 'path';
 
+export class AstrolarkMarkersExistError extends Error {
+  constructor(filePath: string) {
+    super(`File ${filePath} already contains Astrolark markers`);
+    this.name = 'AstrolarkMarkersExistError';
+  }
+}
+
 export async function phase3(fileObjects: FileObject_p2[], context: ProcessorContext): Promise<void> {
   for (const fileObject of fileObjects) {
-    // if not absolute path, make it absolute
     let filePath = fileObject.path;
     if (!path.isAbsolute(fileObject.path)) {
       filePath = path.join(context.rootDir, fileObject.path);
@@ -14,8 +20,7 @@ export async function phase3(fileObjects: FileObject_p2[], context: ProcessorCon
 
     // Check if the file already contains Astrolark markers
     if (lines.some(line => line.trim().startsWith('@@ALK'))) {
-      console.error(`File ${fileObject.path} already contains Astrolark markers. Skipping.`);
-      throw new Error(`File ${filePath} already contains Astrolark markers`);
+      throw new AstrolarkMarkersExistError(filePath);
     }
 
     let modifiedLines = [...lines];
