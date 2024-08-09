@@ -1,4 +1,5 @@
 import { parseAstrolarkInput, MissingPathError, UnclosedFileSectionError, NestedFileSectionError } from '../../src/editor/parser';
+import { createReadableStream, simulateLLMStreamFromString } from '../../src/editor';
 import {
   sampleInputBeginning,
   sampleInputMiddle,
@@ -13,14 +14,17 @@ import {
   sampleInputMissingPath,
   sampleInputUnclosedFile,
   sampleInputNestedFile,
-  simulateLLMStreamFromString
 } from '../setup';
 
 const transformerFn = simulateLLMStreamFromString;
 
-describe('parseAstrolarkInput', () => {
+describe('Parse AstrolarkInputs via clean and delayed stream', () => {
   it('should parse edits at the beginning of a file', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputBeginning));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputBeginning));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputBeginning));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -40,7 +44,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should parse edits in the middle of a file', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputMiddle));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputMiddle));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputMiddle));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -64,7 +72,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should parse edits at the end of a file', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputEnd));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputEnd));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputEnd));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -84,7 +96,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should parse multiple edits in a single file', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputMultipleEdits));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputMultipleEdits));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputMultipleEdits));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -118,7 +134,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should parse edits for multiple files', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputMultipleFiles));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputMultipleFiles));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputMultipleFiles));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -157,7 +177,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should handle a complex scenario with multiple files and edits', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputComplexScenario));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputComplexScenario));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputComplexScenario));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -224,7 +248,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should handle empty lines correctly', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputWithEmptyLines));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputWithEmptyLines));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputWithEmptyLines));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -249,7 +277,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should handle multiple NO-CHANGE chunks correctly', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputMultipleNoChange));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputMultipleNoChange));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputMultipleNoChange));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -278,7 +310,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should handle files with only NO-CHANGE content', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputOnlyNoChange));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputOnlyNoChange));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputOnlyNoChange));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -293,7 +329,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should not include @@ALK</FILE> in the content', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputWithFileTag));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputWithFileTag));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputWithFileTag));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
@@ -309,7 +349,11 @@ describe('parseAstrolarkInput', () => {
   });
 
   it('should not include any @@ALK< tags in the content', async () => {
-    const result = await parseAstrolarkInput(transformerFn(sampleInputWithFileTag));
+    const result_promise = parseAstrolarkInput(simulateLLMStreamFromString(sampleInputWithFileTag));
+    const result_alt_promise = parseAstrolarkInput(createReadableStream(sampleInputWithFileTag));
+    const result = await result_promise;
+    const result_alt = await result_alt_promise;
+    expect(result).toEqual(result_alt);
     expect(result).toEqual([
       {
         path: 'file1.txt',
