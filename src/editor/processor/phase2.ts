@@ -1,4 +1,4 @@
-import { FileObject_p1, FileObject_p2, ProcessedChunk2, ProcessorPhase2, MisplacedBlockError } from './types';
+import { FileObject_p1, FileObject_p2, ProcessedChunk2, ProcessorPhase2, MisplacedBlockError } from './types.js';
 
 export const phase2: ProcessorPhase2 = async (fileObjects, context) => {
   return fileObjects.map(fileObject => ({

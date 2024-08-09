@@ -5,18 +5,28 @@ import boxen from 'boxen';
 import clipboardy from 'clipboardy';
 import { getOptions, generateShortcutCommand } from './wizard.js';
 import { generateOverview } from './overviewGenerator.js';
+import { applyEdits } from './editor/index.js';
 
 async function main() {
   const options = await getOptions();
 
   if (options.edit) {
-    // add the new edit command
+    try {
+      const clipboardContent = await clipboardy.read();
+      const context = { rootDir: process.cwd() };
+
+      await applyEdits(clipboardContent, context);
+
+      console.log(chalk.green('✔ Edits applied successfully'));
+    } catch (err) {
+      console.error(chalk.red('✘ Error applying edits:', err instanceof Error ? err.message : 'Unknown error'));
+    }
     return;
   }
 
   const projectPath = process.cwd();
   const { content, ignoredFiles } = generateOverview(projectPath, options.format);
-  
+
   if (options.copy) {
     try {
       await clipboardy.write(content);
@@ -25,7 +35,7 @@ async function main() {
       console.error(chalk.red('✘ Error copying to clipboard:', err instanceof Error ? err.message : 'Unknown error'));
     }
   }
-  
+
   const outputPath = options.output || `project_overview.astrolark.${options.format}`;
   console.log(chalk.blue(`✔ Project overview generated as ${chalk.bold(outputPath)}`));
 

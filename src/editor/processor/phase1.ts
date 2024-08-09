@@ -1,4 +1,4 @@
-import { FileObject_p0, FileObject_p1, ProcessedChunk, ProcessorPhase1 } from './types';
+import { FileObject_p0, FileObject_p1, ProcessedChunk, ProcessorPhase1 } from './types.js';
 import { Chunk, EditChunk } from '../parser';
 
 export const phase1: ProcessorPhase1 = async (fileObjects, context) => {

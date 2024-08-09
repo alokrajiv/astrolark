@@ -4,7 +4,7 @@ import { parseAstrolarkInput } from '../../../../src/editor/parser';
 import { phase1 } from '../../../../src/editor/processor/phase1';
 import { phase2 } from '../../../../src/editor/processor/phase2';
 import { phase3 } from '../../../../src/editor/processor/phase3';
-import { simulateLLMStreamFromString } from '../../../setup';
+import { simulateLLMStreamFromString } from '../../../../src/editor/index.js';
 
 const testDir = path.join(__dirname);
 

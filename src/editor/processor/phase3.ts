@@ -1,4 +1,4 @@
-import { FileObject_p2, ProcessorContext, ProcessedChunk2 } from './types';
+import { FileObject_p2, ProcessorContext, ProcessedChunk2 } from './types.js';
 import fs from 'fs/promises';
 import path from 'path';
 

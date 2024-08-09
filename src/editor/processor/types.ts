@@ -1,4 +1,4 @@
-import { FileObject, Chunk, EditChunk, NoChangeChunk } from '../parser';
+import { FileObject, Chunk, EditChunk, NoChangeChunk } from '../parser.js';
 
 // Parser output (Phase 0)
 export interface FileObject_p0 extends Omit<FileObject, 'chunks'> {
