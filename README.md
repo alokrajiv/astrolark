@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-Astrolark is a command-line tool that snapshots your project's structure and contents. Run `npx astrolark` in your project folder, and it automatically copies the overview to your clipboard. Then, simply open your preferred AI assistant (like ChatGPT or Claude) in a web browser, paste the content, and start asking questions about your code. It's an effortless way to get AI insights on your project.
+Astrolark is a command-line tool that snapshots your project's structure and contents. Run `npx astrolark` in your project folder to start the interactive wizard, or use the non-interactive mode with command-line options. It automatically copies the overview to your clipboard or saves it to a file. Then, simply open your preferred AI assistant (like ChatGPT or Claude) in a web browser, paste the content, and start asking questions about your code. It's an effortless way to get AI insights on your project.
 
 ## Beam Up Your Code, Captain! 🖖
 
@@ -18,6 +18,7 @@ Astrolark is your trusty command-line companion for exploring and extracting the
 - **Gitignore Respect**: Excludes files and directories based on your .gitignore rules
 - **Binary File Detection**: Automatically skips binary files to keep your overview clean
 - **Interactive Wizard**: Easy configuration with a user-friendly command-line interface
+- **Non-Interactive Mode**: Use command-line options for quick scans without the wizard
 
 ### 🛸 Quick Start
 
@@ -34,15 +35,15 @@ This will start the interactive wizard to guide you through the configuration op
 Skip the wizard and use command-line options for quick scans:
 
 ```bash
-npx astrolark --no-wizard --format yaml --output project_overview.astrolark.yaml --copy
+npx astrolark read --verbose --output project_overview.astrolark.yaml --base-path "/path/to/project" --no-wizard
 ```
 
 Available options:
+- `read` or `edit`: Specify the command (required)
 - `--no-wizard`: Skip the interactive wizard
-- `--format <xml|yaml>`: Specify the output format
-- `--output <filename>`: Set a custom output filename
-- `--copy`: Automatically copy the output to clipboard
 - `--verbose`: Enable verbose output for debugging
+- `--output <filename>`: Set a custom output filename (for 'read' command)
+- `--base-path <path>`: Specify the base path for file operations
 
 ### 🌠 Why Astrolark?
 
