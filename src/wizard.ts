@@ -1,12 +1,16 @@
-import { input, confirm } from '@inquirer/prompts';
+import { input, confirm, select } from '@inquirer/prompts';
 import chalk from 'chalk';
+import boxen from 'boxen';
 
 export async function runWizard() {
-  console.log(chalk.cyan('Welcome to Astrolark! Please choose an option:'));
+  console.log(boxen(chalk.cyan('Welcome to Astrolark!\n\nAstrolark helps you generate context for your project so you can easily ask questions about it using an LLM.\n\nThis interactive wizard will guide you through the options and provide a non-interactive shortcut for future use.'), {padding: 1, margin: 1, borderStyle: 'round'}));
 
-  const command = await input({
-    message: 'Enter command (edit/read):',
-    validate: (value) => ['edit', 'read'].includes(value) ? true : 'Please enter either "edit" or "read"'
+  const command = await select({
+    message: 'Choose a command:',
+    choices: [
+      { name: 'Generate project overview', value: 'read' },
+      { name: 'Edit files based on Astrolark syntax', value: 'edit' },
+    ],
   });
 
   const verbose = await confirm({
@@ -26,5 +30,15 @@ export async function runWizard() {
     default: process.cwd()
   });
 
-  return { command, verbose, output: output || undefined, basePath };
+  const options = {
+    command,
+    verbose,
+    output: output || undefined,
+    basePath,
+  };
+
+  console.log(chalk.green('\nYou can use the following command to run Astrolark with these options non-interactively:'));
+  console.log(chalk.yellow(`npx astrolark ${command} ${verbose ? '--verbose' : ''} ${output ? `--output ${output}` : ''} --base-path "${basePath}" --no-wizard`));
+
+  return options;
 }

@@ -7,6 +7,7 @@ import { generateOverview } from './overviewGenerator.js';
 import { applyEdits } from './editor/index.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { input, confirm, select } from '@inquirer/prompts';
 
 async function main() {
   const argv = await yargs(hideBin(process.argv))
@@ -30,13 +31,47 @@ async function main() {
     .alias('help', 'h')
     .parse();
 
-  const command = argv._[0] as string | undefined;
-
-  const options = {
+  let options = {
     verbose: argv.verbose,
     output: argv.output,
     basePath: argv['base-path'] || process.cwd(),
   };
+
+  let command = argv._[0] as string | undefined;
+
+  if (!command) {
+    // Implement runWizard functionality inline
+    console.log(chalk.cyan('Welcome to Astrolark!\n'));
+    console.log('Astrolark helps you generate context for your project so you can easily ask questions about it using an LLM.\n');
+    console.log('This interactive wizard will guide you through the options and provide a non-interactive shortcut for future use.\n');
+
+    command = await select({
+      message: 'Choose a command:',
+      choices: [
+        { name: 'Generate project overview', value: 'read' },
+        { name: 'Edit files based on Astrolark syntax', value: 'edit' },
+      ],
+    });
+
+    options.verbose = await confirm({
+      message: 'Enable verbose output?',
+      default: false
+    });
+
+    if (command === 'read') {
+      options.output = await input({
+        message: 'Enter the output file name/path (leave empty to copy to clipboard):',
+      });
+    }
+
+    options.basePath = await input({
+      message: 'Enter base path for file operations (leave empty for current directory):',
+      default: process.cwd()
+    });
+
+    console.log(chalk.green('\nYou can use the following command to run Astrolark with these options non-interactively:'));
+    console.log(chalk.yellow(`npx astrolark ${command} ${options.verbose ? '--verbose' : ''} ${options.output ? `--output ${options.output}` : ''} --base-path "${options.basePath}"`));
+  }
 
   if (command === 'edit') {
     try {

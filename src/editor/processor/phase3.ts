@@ -9,13 +9,40 @@ export class AstrolarkMarkersExistError extends Error {
   }
 }
 
+export class NewFileContainsNoChangeBlockError extends Error {
+  constructor(filePath: string) {
+    super(`Newly created file ${filePath} contains a no-change block`);
+    this.name = 'NewFileContainsNoChangeBlockError';
+  }
+}
+
 export async function phase3(fileObjects: FileObject_p2[], context: ProcessorContext): Promise<void> {
   for (const fileObject of fileObjects) {
     let filePath = fileObject.path;
     if (!path.isAbsolute(fileObject.path)) {
       filePath = path.join(context.rootDir, fileObject.path);
     }
-    const originalContent = await fs.readFile(filePath, 'utf-8');
+
+    // Create directory if it doesn't exist
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+
+    let originalContent = '';
+    let isNewFile = false;
+    try {
+      originalContent = await fs.readFile(filePath, 'utf-8');
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        isNewFile = true;
+      } else {
+        throw error;
+      }
+    }
+
+    // Check for no-change blocks only in newly created files
+    if (isNewFile && fileObject.chunks.some(chunk => chunk.type === 'no-change')) {
+      throw new NewFileContainsNoChangeBlockError(filePath);
+    }
+
     const lines = originalContent.split('\n');
 
     // Check if the file already contains Astrolark markers
