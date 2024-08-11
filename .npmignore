@@ -1,0 +1,26 @@
+# Source files
+src/
+
+# Test files
+tests/
+
+# Configuration files
+tsconfig.json
+jest.config.mjs
+
+# Editor files
+.editorconfig
+
+# Git files
+.gitignore
+
+# Temporary files
+*.log
+*.tmp
+
+# Development files
+*.test.ts
+*.spec.ts
+
+# Misc
+README.md

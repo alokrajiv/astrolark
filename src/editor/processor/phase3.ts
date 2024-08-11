@@ -18,10 +18,7 @@ export class NewFileContainsNoChangeBlockError extends Error {
 
 export async function phase3(fileObjects: FileObject_p2[], context: ProcessorContext): Promise<void> {
   for (const fileObject of fileObjects) {
-    let filePath = fileObject.path;
-    if (!path.isAbsolute(fileObject.path)) {
-      filePath = path.join(context.rootDir, fileObject.path);
-    }
+    let filePath = path.isAbsolute(fileObject.path) ? fileObject.path : path.join(context.rootDir, fileObject.path);
 
     // Create directory if it doesn't exist
     await fs.mkdir(path.dirname(filePath), { recursive: true });

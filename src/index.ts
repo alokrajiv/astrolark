@@ -8,6 +8,7 @@ import { applyEdits } from './editor/index.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { input, confirm, select } from '@inquirer/prompts';
+import path from 'path';
 
 async function main() {
   const argv = await yargs(hideBin(process.argv))
@@ -24,6 +25,7 @@ async function main() {
       description: 'Specify output file (only for read command)'
     })
     .option('base-path', {
+      alias: 'b',
       type: 'string',
       description: 'Specify base path for file operations'
     })
@@ -92,8 +94,9 @@ async function main() {
     const { content, ignoredFiles } = generateOverview(projectPath);
 
     if (options.output) {
-      await fs.writeFile(options.output, content);
-      console.log(chalk.blue(`✔ Project overview generated as ${chalk.bold(options.output)}`));
+      const outputPath = path.isAbsolute(options.output) ? options.output : path.join(projectPath, options.output);
+      await fs.writeFile(outputPath, content);
+      console.log(chalk.blue(`✔ Project overview generated as ${chalk.bold(outputPath)}`));
     } else {
       try {
         await clipboardy.write(content);
