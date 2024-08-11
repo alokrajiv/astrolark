@@ -78,7 +78,11 @@ async function main() {
   if (command === 'edit') {
     try {
       const clipboardContent = await clipboardy.read();
-      const context = { rootDir: options.basePath };
+      const context = { rootDir: options.basePath, verbose: false };
+
+      if (options.verbose) {
+        context.verbose = true;
+      }
 
       await applyEdits(clipboardContent, context);
 

@@ -20,6 +20,10 @@ export async function phase3(fileObjects: FileObject_p2[], context: ProcessorCon
   for (const fileObject of fileObjects) {
     let filePath = path.isAbsolute(fileObject.path) ? fileObject.path : path.join(context.rootDir, fileObject.path);
 
+    if (context.verbose) {
+      console.log(`\nProcessing file: ${filePath}`);
+    }
+
     // Create directory if it doesn't exist
     await fs.mkdir(path.dirname(filePath), { recursive: true });
 
@@ -30,6 +34,9 @@ export async function phase3(fileObjects: FileObject_p2[], context: ProcessorCon
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         isNewFile = true;
+        if (context.verbose) {
+          console.log(`  Creating new file: ${filePath}`);
+        }
       } else {
         throw error;
       }
@@ -54,22 +61,42 @@ export async function phase3(fileObjects: FileObject_p2[], context: ProcessorCon
       if (chunk.type === 'edit') {
         const { topAnchorPosition, bottomAnchorPosition } = findAnchorPositions(lines, chunk);
 
+        if (context.verbose) {
+          console.log(`  Processing chunk: ${chunk.blockId}`);
+          console.log(`    Top anchor position: ${topAnchorPosition}`);
+          console.log(`    Bottom anchor position: ${bottomAnchorPosition}`);
+        }
+
         if (topAnchorPosition !== -1) {
           const topAnchorLine = `@@ALK_${chunk.blockId}_ANCHOR_TOP`;
           modifiedLines.splice(topAnchorPosition + offset, 0, topAnchorLine);
           offset++;
+          if (context.verbose) {
+            console.log(`    Added top anchor: ${topAnchorLine}`);
+          }
+        } else if (context.verbose) {
+          console.log(`    Warning: Could not find position for top anchor`);
         }
 
         if (bottomAnchorPosition !== -1) {
           const bottomAnchorLine = `@@ALK_${chunk.blockId}_ANCHOR_BOTTOM`;
           modifiedLines.splice(bottomAnchorPosition + offset + 1, 0, bottomAnchorLine);
           offset++;
+          if (context.verbose) {
+            console.log(`    Added bottom anchor: ${bottomAnchorLine}`);
+          }
+        } else if (context.verbose) {
+          console.log(`    Warning: Could not find position for bottom anchor`);
         }
       }
     }
 
     const modifiedContent = modifiedLines.join('\n');
     await fs.writeFile(filePath, modifiedContent);
+
+    if (context.verbose) {
+      console.log(`  File processed and saved: ${filePath}`);
+    }
   }
 }
 

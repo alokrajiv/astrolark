@@ -33,6 +33,7 @@ export type ProcessedChunk2 = ProcessedEditChunk | ProcessedNoChangeChunk;
 
 export interface ProcessorContext {
   rootDir: string;
+  verbose: boolean;
 }
 
 export type ProcessorPhase1 = (

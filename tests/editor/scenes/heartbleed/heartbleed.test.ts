@@ -54,7 +54,7 @@ describe('Heartbleed Scene Tests', () => {
     const input = await readJsonFile('stage0.json');
     const expected = await readJsonFile('stage1.json');
 
-    const result = await phase1(input.result, { rootDir: testDir });
+    const result = await phase1(input.result, { rootDir: testDir, verbose: false });
 
     try {
       expect(result).toEqual(expected.result);
@@ -68,7 +68,7 @@ describe('Heartbleed Scene Tests', () => {
     const input = await readJsonFile('stage1.json');
     const expected = await readJsonFile('stage2.json');
 
-    const result = await phase2(input.result, { rootDir: testDir });
+    const result = await phase2(input.result, { rootDir: testDir, verbose: false });
 
     try {
       expect(result).toEqual(expected.result);
@@ -88,7 +88,7 @@ describe('Heartbleed Scene Tests', () => {
     input.result[0].path = tempFilePath;
 
     try {
-      await phase3(input.result, { rootDir: testDir });
+      await phase3(input.result, { rootDir: testDir, verbose: false });
 
       const modifiedContent = await fs.readFile(tempFilePath, 'utf-8');
       try {

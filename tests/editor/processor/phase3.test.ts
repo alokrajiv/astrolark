@@ -8,7 +8,7 @@ jest.mock('path');
 
 describe('Phase 3: Apply anchors', () => {
   const mockRootDir = '/mock/root';
-  const context: ProcessorContext = { rootDir: mockRootDir };
+  const context: ProcessorContext = { rootDir: mockRootDir, verbose: false };
 
   beforeEach(() => {
     jest.clearAllMocks();

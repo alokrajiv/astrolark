@@ -2,7 +2,7 @@ import { phase1 } from '../../../src/editor/processor/phase1';
 import { FileObject_p0, FileObject_p1, ProcessorContext } from '../../../src/editor/processor/types';
 
 describe('Phase 1: Remove consecutive no-change chunks', () => {
-  const context: ProcessorContext = { rootDir: '/test' };
+  const context: ProcessorContext = { rootDir: '/test', verbose: false };
 
   it('should remove consecutive no-change chunks', async () => {
     const input: FileObject_p0[] = [

@@ -2,7 +2,7 @@ import { phase2 } from '../../../src/editor/processor/phase2';
 import { FileObject_p1, FileObject_p2, ProcessorContext, MisplacedBlockError } from '../../../src/editor/processor/types';
 
 describe('Phase 2: Identify block types', () => {
-  const context: ProcessorContext = { rootDir: '/test' };
+  const context: ProcessorContext = { rootDir: '/test', verbose: false };
 
   it('should identify full block with anchors', async () => {
     const input: FileObject_p1[] = [
