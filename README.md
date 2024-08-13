@@ -19,6 +19,7 @@ Astrolark is your trusty command-line companion for exploring and extracting the
 - **Binary File Detection**: Automatically skips binary files to keep your overview clean
 - **Interactive Wizard**: Easy configuration with a user-friendly command-line interface
 - **Non-Interactive Mode**: Use command-line options for quick scans without the wizard
+- **File and Directory Filtering**: Specify which files or directories to include in the overview
 
 ### 🛸 Quick Start
 
@@ -35,7 +36,7 @@ This will start the interactive wizard to guide you through the configuration op
 Skip the wizard and use command-line options for quick scans:
 
 ```bash
-npx astrolark read --verbose --output project_overview.astrolark.yaml --base-path "/path/to/project" --no-wizard
+npx astrolark read --verbose --output project_overview.astrolark.yaml --base-path "/path/to/project" --filter "src" "tests" --no-wizard
 ```
 
 Available options:
@@ -44,6 +45,7 @@ Available options:
 - `--verbose`: Enable verbose output for debugging
 - `--output <filename>`: Set a custom output filename (for 'read' command)
 - `--base-path <path>`: Specify the base path for file operations
+- `--filter <path>...`: Specify files or directories to include (can be used multiple times)
 
 ### 🌠 Why Astrolark?
 
@@ -64,11 +66,4 @@ Found a glitch in the matrix? Have ideas for new features? We welcome all specie
 
 ### 📡 Stay in Orbit
 
-- Follow the captain: [@AlokRajiv](https://x.com/AlokRajiv)
-- Check our flight logs: [GitHub](https://github.com/alokrajiv)
-
-### 📜 License
-
-Astrolark is released under the MIT License. See the LICENSE file for more details.
-
-Remember, in space, no one can hear you code... but with Astrolark, everyone can see it! 🌠
+- Follow the
