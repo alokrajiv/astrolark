@@ -10,6 +10,10 @@ import { hideBin } from 'yargs/helpers';
 import path from 'path';
 import { runWizard } from './wizard.js';
 
+function removeQuotes(str: string): string {
+  return str.replace(/^['"]|['"]$/g, '');
+}
+
 async function main() {
   const argv = await yargs(hideBin(process.argv))
     .command('edit', 'Edit files based on Astrolark syntax in clipboard')
@@ -42,11 +46,15 @@ async function main() {
     .alias('help', 'h')
     .parse();
 
-  let options = {
+  const basePath = removeQuotes(argv['base-path'] as string);
+  let options: any = {
     verbose: argv.verbose,
     output: argv.output,
-    basePath: argv['base-path'],
-    filter: argv.filter as string[]
+    basePath: basePath,
+    filter: (argv.filter as string[]).map(f => {
+      const cleanPath = removeQuotes(f);
+      return path.relative(basePath, path.resolve(basePath, cleanPath));
+    })
   };
 
   let command = argv._[0] as string | undefined;
@@ -55,6 +63,8 @@ async function main() {
     const wizardOptions = await runWizard();
     command = wizardOptions.command;
     options = { ...options, ...wizardOptions };
+  } else {
+    options.command = command;
   }
 
   if (command === 'edit') {
@@ -79,7 +89,7 @@ async function main() {
       if (options.output) {
         const outputPath = path.isAbsolute(options.output) ? options.output : path.join(projectPath, options.output);
         await fs.writeFile(outputPath, content);
-        console.log(chalk.blue(`✔ Project overview generated as ${chalk.bold(outputPath)}`));
+        console.log(chalk.green(`✔ Project overview generated as ${chalk.bold(outputPath)}`));
       } else {
         try {
           await clipboardy.write(content);
