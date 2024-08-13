@@ -3,12 +3,6 @@ import chalk from 'chalk';
 import boxen from 'boxen';
 import path from 'path';
 
-function clearLine() {
-  process.stdout.moveCursor(0, -1);
-  process.stdout.clearLine(1);
-  process.stdout.cursorTo(0);
-}
-
 function removeQuotes(str: string): string {
   return str.replace(/^['"]|['"]$/g, '');
 }
@@ -22,18 +16,18 @@ export async function runWizard() {
   let commandString = 'npx astrolark';
 
   const updateCommandString = () => {
-    clearLine();
     console.log(chalk.yellow(`Current command: ${commandString}`));
   };
 
   options.command = await select({
     message: 'Choose a command:',
     choices: [
-      { name: 'Generate project overview', value: 'read' },
+      { name: 'Read files to compress', value: 'read' },
       { name: 'Edit files based on Astrolark syntax', value: 'edit' },
     ],
   });
   commandString += ` ${options.command}`;
+  console.log(chalk.dim(`Command selected: ${options.command}`));
   updateCommandString();
 
   console.log(chalk.cyan(`\nGreat! Let's configure the ${options.command} command.\n`));
@@ -44,6 +38,7 @@ export async function runWizard() {
     validate: (input) => input.trim() !== '' || 'Base path cannot be empty'
   }));
   commandString += ` --base-path "${options.basePath}"`;
+  console.log(chalk.dim(`Base path: ${options.basePath}`));
   updateCommandString();
 
   if (options.command === 'read') {
@@ -60,6 +55,7 @@ export async function runWizard() {
         const relativePath = path.relative(options.basePath, path.resolve(options.basePath, cleanPath));
         options.filter.push(relativePath);
         commandString += ` --filter "${relativePath}"`;
+        console.log(chalk.dim(`Added filter: ${relativePath}`));
         updateCommandString();
       } else {
         addMorePaths = false;
@@ -68,6 +64,7 @@ export async function runWizard() {
     if (options.filter.length === 0) {
       options.filter = ['.'];
       commandString += ' --filter "."';
+      console.log(chalk.dim(`Default filter: .`));
       updateCommandString();
     }
 
@@ -78,8 +75,11 @@ export async function runWizard() {
     });
     if (options.output) {
       commandString += ` --output "${options.output}"`;
-      updateCommandString();
+      console.log(chalk.dim(`Output: ${options.output}`));
+    } else {
+      console.log(chalk.dim(`Output: Clipboard`));
     }
+    updateCommandString();
   }
 
   console.log(chalk.cyan('\nAlmost done! Just a few more optional settings.\n'));
@@ -90,14 +90,19 @@ export async function runWizard() {
   });
   if (options.verbose) {
     commandString += ' --verbose';
-    updateCommandString();
+    console.log(chalk.dim(`Verbose: Yes`));
+  } else {
+    console.log(chalk.dim(`Verbose: No`));
   }
+  updateCommandString();
 
   console.log(boxen(
     chalk.green('Wizard complete! You can use the following command to run Astrolark with these options:') +
     '\n\n' + chalk.yellow(commandString),
     {padding: 1, margin: 1, borderStyle: 'round'}
   ));
+
+  console.log(chalk.cyan('\nExecuting the command...\n'));
 
   return options;
 }

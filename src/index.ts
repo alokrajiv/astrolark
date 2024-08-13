@@ -17,7 +17,7 @@ function removeQuotes(str: string): string {
 async function main() {
   const argv = await yargs(hideBin(process.argv))
     .command('edit', 'Edit files based on Astrolark syntax in clipboard')
-    .command('read', 'Generate project overview')
+    .command('read', 'Read files to compress')
     .option('verbose', {
       alias: 'v',
       type: 'boolean',
@@ -60,9 +60,9 @@ async function main() {
   let command = argv._[0] as string | undefined;
 
   if (!command) {
-    const wizardOptions = await runWizard();
-    command = wizardOptions.command;
-    options = { ...options, ...wizardOptions };
+    options = await runWizard();
+    command = options.command;
+    console.log(chalk.cyan('Command execution starting...\n'));
   } else {
     options.command = command;
   }
@@ -89,11 +89,13 @@ async function main() {
       if (options.output) {
         const outputPath = path.isAbsolute(options.output) ? options.output : path.join(projectPath, options.output);
         await fs.writeFile(outputPath, content);
-        console.log(chalk.green(`✔ Project overview generated as ${chalk.bold(outputPath)}`));
+        console.log(chalk.green(`✔ Compressed code saved to ${chalk.bold(outputPath)}`));
+        console.log(chalk.cyan('Next step: Upload this file to your AI chat interface to start analyzing your code.'));
       } else {
         try {
           await clipboardy.write(content);
-          console.log(chalk.green('✔ Project overview copied to clipboard'));
+          console.log(chalk.green('✔ Compressed code copied to clipboard'));
+          console.log(chalk.cyan('Next step: Paste the clipboard content into your AI chat interface to start analyzing your code.'));
         } catch (err) {
           console.error(chalk.red('✘ Error copying to clipboard:', err instanceof Error ? err.message : 'Unknown error'));
         }
