@@ -10,8 +10,31 @@ import { hideBin } from 'yargs/helpers';
 import path from 'path';
 import { runWizard } from './wizard.js';
 
+interface AstrolarkOptions {
+  command?: string;
+  basePath: string;
+  filter: string[];
+  output: string;
+  verbose: boolean;
+}
+
 function removeQuotes(str: string): string {
   return str.replace(/^['"]|['"]$/g, '');
+}
+
+function processOptions(rawOptions: Partial<AstrolarkOptions>): AstrolarkOptions {
+  const basePath = removeQuotes(rawOptions.basePath || process.cwd());
+
+  return {
+    command: rawOptions.command || 'read',
+    basePath: basePath,
+    filter: (rawOptions.filter || ['.']).map((f: string) => {
+      const cleanPath = removeQuotes(f);
+      return path.relative(basePath, path.resolve(basePath, cleanPath));
+    }),
+    output: rawOptions.output || '',
+    verbose: rawOptions.verbose || false
+  };
 }
 
 async function main() {
@@ -44,30 +67,18 @@ async function main() {
     })
     .help()
     .alias('help', 'h')
-    .parse();
+    .parse() as unknown as Partial<AstrolarkOptions>;
 
-  const basePath = removeQuotes(argv['base-path'] as string);
-  let options: any = {
-    verbose: argv.verbose,
-    output: argv.output,
-    basePath: basePath,
-    filter: (argv.filter as string[]).map(f => {
-      const cleanPath = removeQuotes(f);
-      return path.relative(basePath, path.resolve(basePath, cleanPath));
-    })
-  };
+  let options = processOptions(argv);
 
-  let command = argv._[0] as string | undefined;
-
-  if (!command) {
-    options = await runWizard();
-    command = options.command;
-    console.log(chalk.cyan('Command execution starting...\n'));
-  } else {
-    options.command = command;
+  if (!options.command) {
+    const wizardOptions = await runWizard();
+    options = processOptions(wizardOptions);
   }
 
-  if (command === 'edit') {
+  console.log(chalk.cyan('Command execution starting...\n'));
+
+  if (options.command === 'edit') {
     try {
       const clipboardContent = await clipboardy.read();
       const context = { rootDir: options.basePath, verbose: options.verbose };
@@ -81,7 +92,7 @@ async function main() {
     return;
   }
 
-  if (command === 'read') {
+  if (options.command === 'read') {
     try {
       const projectPath = options.basePath;
       const { content, ignoredFiles } = generateOverview(projectPath, options.filter);
