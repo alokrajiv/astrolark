@@ -10,10 +10,15 @@ import { hideBin } from 'yargs/helpers';
 import path from 'path';
 import { runWizard } from './wizard.js';
 
+interface FilterRule {
+  type: 'include' | 'exclude';
+  path: string;
+}
+
 interface AstrolarkOptions {
   command?: string;
   basePath: string;
-  filter: string[];
+  filterRules: FilterRule[];
   output: string;
   verbose: boolean;
 }
@@ -22,16 +27,34 @@ function removeQuotes(str: string): string {
   return str.replace(/^['"]|['"]$/g, '');
 }
 
-function processOptions(rawOptions: Partial<AstrolarkOptions>): AstrolarkOptions {
+function processOptions(rawOptions: Partial<AstrolarkOptions> & { include?: string[], exclude?: string[] }): AstrolarkOptions {
   const basePath = removeQuotes(rawOptions.basePath || process.cwd());
+
+  const filterRules: FilterRule[] = [];
+  if (rawOptions.include || rawOptions.exclude) {
+    const includeFlags = rawOptions.include || [];
+    const excludeFlags = rawOptions.exclude || [];
+    const maxLength = Math.max(includeFlags.length, excludeFlags.length);
+
+    for (let i = 0; i < maxLength; i++) {
+      if (i < includeFlags.length) {
+        filterRules.push({ type: 'include', path: includeFlags[i] });
+      }
+      if (i < excludeFlags.length) {
+        filterRules.push({ type: 'exclude', path: excludeFlags[i] });
+      }
+    }
+  } else if (!rawOptions.filterRules || rawOptions.filterRules.length === 0) {
+    // If no include/exclude specified and no filterRules, include everything
+    filterRules.push({ type: 'include', path: '.' });
+  } else {
+    filterRules.push(...rawOptions.filterRules);
+  }
 
   return {
     command: rawOptions.command || 'read',
     basePath: basePath,
-    filter: (rawOptions.filter || ['.']).map((f: string) => {
-      const cleanPath = removeQuotes(f);
-      return path.relative(basePath, path.resolve(basePath, cleanPath));
-    }),
+    filterRules: filterRules,
     output: rawOptions.output || '',
     verbose: rawOptions.verbose || false
   };
@@ -41,6 +64,12 @@ async function main() {
   const argv = await yargs(hideBin(process.argv))
     .command('edit', 'Edit files based on Astrolark syntax in clipboard')
     .command('read', 'Read files to compress')
+    .option('wizard', {
+      alias: 'w',
+      type: 'boolean',
+      description: 'Run the interactive wizard',
+      default: false
+    })
     .option('verbose', {
       alias: 'v',
       type: 'boolean',
@@ -59,21 +88,30 @@ async function main() {
       description: 'Specify base path for file operations',
       default: process.cwd()
     })
-    .option('filter', {
-      alias: 'f',
+    .option('include', {
+      alias: 'i',
       type: 'array',
-      description: 'Specify files or directories to include',
-      default: ['.']
+      description: 'Specify paths to include (applied in order)',
+      default: []
+    })
+    .option('exclude', {
+      alias: 'e',
+      type: 'array',
+      description: 'Specify paths to exclude (applied in order)',
+      default: []
     })
     .help()
     .alias('help', 'h')
-    .parse() as unknown as Partial<AstrolarkOptions>;
+    .parse() as unknown as Partial<AstrolarkOptions> & { include?: string[], exclude?: string[], wizard?: boolean };
 
-  let options = processOptions(argv);
+  let options: AstrolarkOptions;
 
-  if (!options.command) {
+  if (argv.wizard || (!argv.command && process.argv.length <= 2)) {
+    // Run the wizard if explicitly requested or if no arguments were provided
     const wizardOptions = await runWizard();
     options = processOptions(wizardOptions);
+  } else {
+    options = processOptions(argv);
   }
 
   console.log(chalk.cyan('Command execution starting...\n'));
@@ -95,7 +133,7 @@ async function main() {
   if (options.command === 'read') {
     try {
       const projectPath = options.basePath;
-      const { content, ignoredFiles } = generateOverview(projectPath, options.filter);
+      const { content, ignoredFiles } = generateOverview(projectPath, options.filterRules);
 
       if (options.output) {
         const outputPath = path.isAbsolute(options.output) ? options.output : path.join(projectPath, options.output);
@@ -112,15 +150,15 @@ async function main() {
         }
       }
 
-      const gitignoreSkipped = [...ignoredFiles.entries()].filter(([_, reasons]) => reasons.includes('ignored'));
-      const filterSkipped = [...ignoredFiles.entries()].filter(([_, reasons]) => reasons.includes('not in filter list'));
+      const gitignoreSkipped = [...ignoredFiles.entries()].filter(([_, reasons]) => reasons.includes('ignored by .gitignore'));
+      const filterSkipped = [...ignoredFiles.entries()].filter(([_, reasons]) => reasons.includes('excluded by filter rules'));
 
       if (gitignoreSkipped.length > 0) {
-        console.log(chalk.yellow(`ℹ ${gitignoreSkipped.length} files skipped due to .gitignore or always ignore rules`));
+        console.log(chalk.yellow(`ℹ ${gitignoreSkipped.length} files skipped due to .gitignore rules`));
       }
 
       if (filterSkipped.length > 0) {
-        console.log(chalk.yellow(`ℹ ${filterSkipped.length} files skipped due to filter`));
+        console.log(chalk.yellow(`ℹ ${filterSkipped.length} files skipped due to filter rules`));
       }
 
       if (options.verbose) {
