@@ -1,6 +1,6 @@
 {
   "name": "astrolark",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Generate context for an LLM to ask it questions on a project",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
