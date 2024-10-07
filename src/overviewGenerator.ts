@@ -28,14 +28,16 @@ export function generateOverview(
     path: path.isAbsolute(rule.path) ? path.relative(rootPath, rule.path) : rule.path
   }));
 
-  function isIncluded(relativePath: string): boolean {
-    let included = false;
-    for (const rule of normalizedFilterRules) {
+  // Sort rules by path specificity (longest path first)
+  const sortedFilterRules = normalizedFilterRules.sort((a, b) => b.path.length - a.path.length);
+
+  function isIncluded(relativePath: string, defaultInclude: boolean = false): boolean {
+    for (const rule of sortedFilterRules) {
       if (relativePath === rule.path || relativePath.startsWith(rule.path + path.sep) || rule.path === '.') {
-        included = rule.type === 'include';
+        return rule.type === 'include';
       }
     }
-    return included;
+    return defaultInclude;
   }
 
   function traverseDirectory(dir: string, depth: number = 0): void {
@@ -51,7 +53,7 @@ export function generateOverview(
       }
 
       // Then, check if the file/directory is included based on the filter rules
-      if (!isIncluded(relativePath)) {
+      if (!isIncluded(relativePath, true)) {  // Default to including if no rules match
         ignoredFiles.set(relativePath, ['excluded by filter rules']);
         return;
       }
