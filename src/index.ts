@@ -208,6 +208,9 @@ async function main() {
   }
 
   console.log(chalk.cyan('Command execution starting...\n'));
+  if (options.verbose) {
+    console.log('Verbose mode enabled. Dumping options object:', options);
+  }
 
   if (options.githubUrl) {
     await cloneAndProcess(options.githubUrl, options);
