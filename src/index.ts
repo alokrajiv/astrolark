@@ -11,6 +11,7 @@ import path from 'path';
 import { runWizard } from './wizard.js';
 import simpleGit from 'simple-git';
 import os from 'os';
+import { encode as encodeTokens } from "gpt-tokenizer";
 
 interface FilterRule {
   type: 'include' | 'exclude';
@@ -98,6 +99,8 @@ async function cloneAndProcess(url: string, options: AstrolarkOptions): Promise<
 async function processReadCommand(options: AstrolarkOptions): Promise<void> {
   const { content, ignoredFiles } = generateOverview(options.basePath, options.filterRules);
 
+  const tokenCount = encodeTokens(content).length;
+
   if (options.output) {
     const outputPath = path.isAbsolute(options.output) ? options.output : path.join(options.basePath, options.output);
     await fs.writeFile(outputPath, content);
@@ -123,6 +126,8 @@ async function processReadCommand(options: AstrolarkOptions): Promise<void> {
   if (filterSkipped.length > 0) {
     console.log(chalk.yellow(`ℹ ${filterSkipped.length} files skipped due to filter rules`));
   }
+
+  console.log(chalk.yellowBright(`Token count: ${tokenCount}`));
 
   if (options.verbose) {
     console.log(chalk.cyan('\nVerbose output:'));
