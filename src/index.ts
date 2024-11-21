@@ -70,11 +70,25 @@ async function cloneAndProcess(url: string, options: AstrolarkOptions): Promise<
   console.log(chalk.cyan(`Cloning repository to temporary directory: ${tempDir}`));
 
   try {
+    // Check if base path option is provided
+    if (!options.basePath) {
+      options.basePath = tempDir;
+    } else {
+      // Update the base path to the cloned repository if it's not absolute
+      if (!path.isAbsolute(options.basePath)) {
+        options.basePath = path.join(tempDir, options.basePath);
+      } else {
+        throw new Error('You cannot give an absolute base path while cloning.');
+      }
+    }
+
+    if (options.verbose) {
+      console.log(chalk.cyan(`Base path updated to: ${options.basePath}`));
+    }
+
+    // Clone the repository after base path is set
     await simpleGit().clone(url, tempDir);
     console.log(chalk.green('✔ Repository cloned successfully'));
-
-    // Update the base path to the cloned repository
-    options.basePath = tempDir;
 
     // Process the cloned repository
     if (options.command === 'read') {
